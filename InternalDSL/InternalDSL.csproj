@@ -50,6 +50,7 @@
     <Compile Include="SemanticModel\Generator\CompoundGenerator.cs" />
     <Compile Include="SemanticModel\Generator\Generator.cs" />
     <Compile Include="SemanticModel\Property.cs" />
+    <Compile Include="SemanticModel\Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
