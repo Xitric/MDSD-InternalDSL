@@ -46,6 +46,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SemanticModel\Generator\CollectionGenerator.cs" />
+    <Compile Include="SemanticModel\Comparison.cs" />
     <Compile Include="SemanticModel\Generator\CompoundGenerator.cs" />
     <Compile Include="SemanticModel\Generator\Generator.cs" />
   </ItemGroup>
