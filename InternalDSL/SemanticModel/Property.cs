@@ -11,11 +11,13 @@ namespace InternalDSL.SemanticModel
 
     internal class Property<TInput, TOutput> : IProperty<TInput>
     {
+        public string Description { get; }
         private readonly Func<TInput, TOutput> _function;
         private readonly IList<Comparison<TInput, TOutput>> _comparisons;
 
-        public Property(Func<TInput, TOutput> function)
+        public Property(string description, Func<TInput, TOutput> function)
         {
+            Description = description;
             _function = function;
             _comparisons = new List<Comparison<TInput, TOutput>>();
         }
@@ -34,9 +36,9 @@ namespace InternalDSL.SemanticModel
 
     public class Property<TInput>
     {
-        public static IProperty<TInput> Make<TOutput>(Func<TInput, TOutput> f)
+        public static IProperty<TInput> Make<TOutput>(string description, Func<TInput, TOutput> function)
         {
-            return new Property<TInput, TOutput>(f);
+            return new Property<TInput, TOutput>(description, function);
         }
     }
 }
