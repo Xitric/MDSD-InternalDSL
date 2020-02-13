@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using InternalDSL.SemanticModel.Generator;
 
 namespace InternalDSL.SemanticModel
@@ -29,12 +29,26 @@ namespace InternalDSL.SemanticModel
         {
             for (var i = 0; i < _samples; i++)
             {
-                var input = _generator.Next();
-                if (!_properties.All(property => property.Assert(input)))
+                if (!AssertProperties())
                 {
-                    //TODO: Fail test
                     return false;
                 }
+            }
+
+            return true;
+        }
+
+        private bool AssertProperties()
+        {
+            var input = _generator.Next();
+            foreach (var property in _properties)
+            {
+                if (property.Assert(input)) continue;
+
+                //TODO: Fail test with message
+                Console.WriteLine($"FAILED: \"{Name}\" for value {input}");
+                Console.WriteLine($"Failed property \"{property.Description}\"");
+                return false;
             }
 
             return true;

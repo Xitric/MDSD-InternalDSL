@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using InternalDSL.SemanticModel;
+using InternalDSL.SemanticModel.Generator;
 
 namespace InternalDSL
 {
@@ -10,12 +8,27 @@ namespace InternalDSL
     {
         static void Main(string[] args)
         {
-            // The code provided will print ‘Hello World’ to the console.
-            // Press Ctrl+F5 (or go to Debug > Start Without Debugging) to run your app.
-            Console.WriteLine("Hello World!");
-            Console.ReadKey();
+            var overZero = new LiteralComparison<(int, int), int>(0, ComparisonType.GreaterThan);
+            var sumEqual = new FunctionEqualityComparison<(int, int), int>(i => i.Item1 + i.Item2);
 
-            // Go to http://aka.ms/dotnet-get-started-console to continue learning how to build a console app! 
+            var sumProperty = new Property<(int, int), int>("Returns the sum of its input", i => Add(i.Item1, i.Item2));
+            sumProperty.AddComparison(sumEqual);
+
+            var meaningfulProperty = new Property<(int, int), int>("Results make sense", i => Add(i.Item1, i.Item2));
+            meaningfulProperty.AddComparison(overZero);
+
+            var generator = new PairGenerator<int, int>(new PosSmallIntGenerator(), new PosSmallIntGenerator());
+            var test = new Test<(int, int)>("Test of sum function", 100, generator);
+            test.AddProperty(sumProperty);
+            test.AddProperty(meaningfulProperty);
+
+            Console.WriteLine(test.Assert());
+            Console.ReadKey();
+        }
+
+        internal static int Add(int a, int b)
+        {
+            return a + b;
         }
     }
 }

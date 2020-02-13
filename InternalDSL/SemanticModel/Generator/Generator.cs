@@ -1,13 +1,15 @@
 ﻿using System;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
 namespace InternalDSL.SemanticModel.Generator
 {
+    //TODO: Move this to the DSL part
     public class Generator
     {
         public static readonly IntGenerator Integer = new IntGenerator();
         public static readonly PosIntGenerator PosInteger = new PosIntGenerator();
+        public static readonly SmallIntGenerator SmallInteger = new SmallIntGenerator();
+        public static readonly PosSmallIntGenerator PosSmallInteger = new PosSmallIntGenerator();
         public static readonly CharGenerator Character = new CharGenerator();
         public static readonly DoubleGenerator Double = new DoubleGenerator();
         public static readonly FloatGenerator Float = new FloatGenerator();
@@ -33,6 +35,16 @@ namespace InternalDSL.SemanticModel.Generator
     public class PosIntGenerator : Generator<int>
     {
         public override int Next() => Rand.Next();
+    }
+
+    public class SmallIntGenerator : Generator<int>
+    {
+        public override int Next() => Rand.Next(short.MaxValue) - (short.MaxValue / 2);
+    }
+
+    public class PosSmallIntGenerator : Generator<int>
+    {
+        public override int Next() => Rand.Next(short.MaxValue);
     }
 
     public class CharGenerator : Generator<char>

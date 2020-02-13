@@ -6,23 +6,25 @@ namespace InternalDSL.SemanticModel
 {
     public interface IProperty<in TInput>
     {
+        string Description { get; }
+
         bool Assert(TInput input);
     }
 
-    internal class Property<TInput, TOutput> : IProperty<TInput>
+    public class Property<TInput, TOutput> : IProperty<TInput>
     {
         public string Description { get; }
         private readonly Func<TInput, TOutput> _function;
-        private readonly IList<Comparison<TInput, TOutput>> _comparisons;
+        private readonly IList<IComparison<TInput, TOutput>> _comparisons;
 
         public Property(string description, Func<TInput, TOutput> function)
         {
             Description = description;
             _function = function;
-            _comparisons = new List<Comparison<TInput, TOutput>>();
+            _comparisons = new List<IComparison<TInput, TOutput>>();
         }
 
-        public void AddComparison(Comparison<TInput, TOutput> comparison)
+        public void AddComparison(IComparison<TInput, TOutput> comparison)
         {
             _comparisons.Add(comparison);
         }
@@ -31,14 +33,6 @@ namespace InternalDSL.SemanticModel
         {
             var functionValue = _function(input);
             return _comparisons.All(comparison => comparison.Matches(input, functionValue));
-        }
-    }
-
-    public class Property<TInput>
-    {
-        public static IProperty<TInput> Make<TOutput>(string description, Func<TInput, TOutput> function)
-        {
-            return new Property<TInput, TOutput>(description, function);
         }
     }
 }
