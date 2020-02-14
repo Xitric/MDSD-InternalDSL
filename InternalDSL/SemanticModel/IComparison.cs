@@ -36,17 +36,19 @@ namespace InternalDSL.SemanticModel
 
     /// <summary>
     /// Used to compare the output of the function under test with the output
-    /// of another function for equality only.
+    /// of another function for equality or inequality only.
     /// </summary>
     /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
     /// <typeparam name="TOutput">The return type of the function under test</typeparam>
     public class FunctionEqualityComparison<TInput, TOutput> : IComparison<TInput, TOutput>
     {
         protected readonly Func<TInput, TOutput> expectedFunction;
+        private readonly bool _equal;
 
-        public FunctionEqualityComparison(Func<TInput, TOutput> expectedFunction)
+        public FunctionEqualityComparison(Func<TInput, TOutput> expectedFunction, bool equal = true)
         {
             this.expectedFunction = expectedFunction;
+            _equal = equal;
         }
 
         public virtual bool Matches(TInput inputSample, TOutput functionValue)
@@ -54,10 +56,10 @@ namespace InternalDSL.SemanticModel
             var expected = expectedFunction(inputSample);
             if (expected == null)
             {
-                return functionValue == null;
+                return (functionValue == null) == _equal;
             }
 
-            return expected.Equals(functionValue);
+            return (expected.Equals(functionValue)) == _equal;
         }
     }
 
@@ -99,13 +101,14 @@ namespace InternalDSL.SemanticModel
     }
 
     /// <summary>
-    /// Used to compare a function output with an invariant value for equality only.
+    /// Used to compare a function output with an invariant value for equality
+    /// or inequality only.
     /// </summary>
     /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
     /// <typeparam name="TOutput">The return type of the function under test</typeparam>
     public class LiteralEqualityComparison<TInput, TOutput> : FunctionEqualityComparison<TInput, TOutput>
     {
-        public LiteralEqualityComparison(TOutput expected) : base(i => expected)
+        public LiteralEqualityComparison(TOutput expected, bool equal = true) : base(i => expected, equal)
         {
         }
     }
