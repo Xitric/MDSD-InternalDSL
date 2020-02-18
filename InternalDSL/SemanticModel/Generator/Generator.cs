@@ -22,7 +22,7 @@ namespace InternalDSL.SemanticModel.Generator
 
     public abstract class Generator<T>
     {
-        protected readonly Random Rand = new Random();
+        protected static readonly Random Rand = new Random();
 
         public abstract T Next();
     }

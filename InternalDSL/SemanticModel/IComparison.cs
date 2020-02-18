@@ -5,11 +5,20 @@ namespace InternalDSL.SemanticModel
     /// <summary>
     /// Used to configure the type of comparison to be performed.
     /// </summary>
-    public enum ComparisonType
+    public enum EqualityOperator
     {
         LessThan = -1,
         EqualTo = 0,
         GreaterThan = 1
+    }
+
+    /// <summary>
+    /// Used tp configure how predicates are combined into more complex predicates.
+    /// </summary>
+    public enum BooleanOperator
+    {
+        AND = 0,
+        OR = 1
     }
 
     /// <summary>
@@ -72,11 +81,11 @@ namespace InternalDSL.SemanticModel
     /// <typeparam name="TOutput">The return type of the function under test</typeparam>
     public class FunctionComparison<TInput, TOutput> : FunctionEqualityComparison<TInput, TOutput> where TOutput : IComparable<TOutput>
     {
-        private readonly ComparisonType _comparisonType;
+        private readonly EqualityOperator _equalityOperator;
 
-        public FunctionComparison(Func<TInput, TOutput> expectedFunction, ComparisonType comparisonType) : base(expectedFunction)
+        public FunctionComparison(Func<TInput, TOutput> expectedFunction, EqualityOperator equalityOperator) : base(expectedFunction)
         {
-            _comparisonType = comparisonType;
+            _equalityOperator = equalityOperator;
         }
 
         public override bool Matches(TInput inputSample, TOutput functionValue)
@@ -84,16 +93,16 @@ namespace InternalDSL.SemanticModel
             var expected = expectedFunction(inputSample);
             if (functionValue != null)
             {
-                return Math.Sign(functionValue.CompareTo(expected)) == (int)_comparisonType;
+                return Math.Sign(functionValue.CompareTo(expected)) == (int)_equalityOperator;
             }
 
-            switch (_comparisonType)
+            switch (_equalityOperator)
             {
-                case ComparisonType.EqualTo:
+                case EqualityOperator.EqualTo:
                     return expected == null;
-                case ComparisonType.LessThan: //Null is only less than something that is not null
+                case EqualityOperator.LessThan: //Null is only less than something that is not null
                     return expected != null;
-                case ComparisonType.GreaterThan: //Null cannot be greater than anything
+                case EqualityOperator.GreaterThan: //Null cannot be greater than anything
                 default:
                     return false;
             }
@@ -121,8 +130,43 @@ namespace InternalDSL.SemanticModel
     /// <typeparam name="TOutput">The return type of the function under test</typeparam>
     public class LiteralComparison<TInput, TOutput> : FunctionComparison<TInput, TOutput> where TOutput : IComparable<TOutput>
     {
-        public LiteralComparison(TOutput expected, ComparisonType comparisonType) : base(i => expected, comparisonType)
+        public LiteralComparison(TOutput expected, EqualityOperator equalityOperator) : base(i => expected, equalityOperator)
         {
+        }
+    }
+
+    /// <summary>
+    /// Used to combine comparisons with boolean operators.
+    /// </summary>
+    /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
+    /// <typeparam name="TOutput">The return type of the function under test</typeparam>
+    public class BlockComparison<TInput, TOutput> : IComparison<TInput, TOutput>
+    {
+        private readonly IComparison<TInput, TOutput> _left;
+        private readonly IComparison<TInput, TOutput> _right;
+        private readonly BooleanOperator _op;
+
+        public BlockComparison(IComparison<TInput, TOutput> left, IComparison<TInput, TOutput> right, BooleanOperator op)
+        {
+            _left = left;
+            _right = right;
+            _op = op;
+        }
+
+        public bool Matches(TInput inputSample, TOutput functionValue)
+        {
+            var leftMatch = _left.Matches(inputSample, functionValue);
+            var rightMatch = _right.Matches(inputSample, functionValue);
+
+            switch (_op)
+            {
+                case BooleanOperator.AND:
+                    return leftMatch && rightMatch;
+                case BooleanOperator.OR:
+                    return leftMatch || rightMatch;
+                default:
+                    return false;
+            }
         }
     }
 }

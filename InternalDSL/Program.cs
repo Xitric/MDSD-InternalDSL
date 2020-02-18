@@ -8,8 +8,8 @@ namespace InternalDSL
     {
         static void Main(string[] args)
         {
-            var overZero = new LiteralComparison<(int, int), int>(0, ComparisonType.GreaterThan);
-            var sumEqual = new FunctionEqualityComparison<(int, int), int>(i => i.Item1 + i.Item2);
+            var overZero = new LiteralComparison<(int, int), int>(0, EqualityOperator.GreaterThan);
+            var sumEqual = new FunctionEqualityComparison<(int, int), int>(i => i.Item1 - i.Item2, true);
 
             var sumProperty = new Property<(int, int), int>("Returns the sum of its input", i => Add(i.Item1, i.Item2));
             sumProperty.AddComparison(sumEqual);
@@ -18,7 +18,7 @@ namespace InternalDSL
             meaningfulProperty.AddComparison(overZero);
 
             var generator = new PairGenerator<int, int>(new PosSmallIntGenerator(), new PosSmallIntGenerator());
-            var test = new Test<(int, int)>("Test of sum function", 100, generator);
+            var test = new Test<(int, int)>("Test of Sum function", 100, generator);
             test.AddProperty(sumProperty);
             test.AddProperty(meaningfulProperty);
 
