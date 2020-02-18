@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime;
-using System.Security.Cryptography;
 using InternalDSL.SemanticModel;
 using InternalDSL.SemanticModel.Generator;
 
 namespace InternalDSL.Builder
 {
-    //TODO: Use subtypes of this class to limit the methods than can be called
-    //TODO: Each subtype should have the creator injected so that it can be returned
-    //TODO: Use the function syntax for creating boolean conditions of comparison objects, use varargs to combine arbitrary amounts
-
     /// <summary>
     /// Interface for objects used to construct tests with a specific input
     /// type.
@@ -44,7 +38,7 @@ namespace InternalDSL.Builder
     {
         IFluentPropertyBuilder<TInput> Given(Func<TInput, bool> function);
 
-        IFluentPropertyComparisonBuilder<TInput, TOutput> Then<TOutput>(Func<TInput, TOutput> function);
+        IFluentComparisonBuilder<TInput, TOutput> Then<TOutput>(Func<TInput, TOutput> function);
     }
 
     /// <summary>
@@ -53,34 +47,20 @@ namespace InternalDSL.Builder
     /// </summary>
     /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
     /// <typeparam name="TOutput">The return type of the function under test</typeparam>
-    public interface IFluentPropertyComparisonBuilder<TInput, TOutput> : IFluentTestBuilder<TInput>
+    public interface IFluentComparisonBuilder<TInput, TOutput> : IFluentTestBuilder<TInput>
     {
-        IFluentTestBuilder<TInput> Satisfies(
-            Func<IFluentComparisonBuilder<TInput, TOutput>, IFluentComparisonBuilder<TInput, TOutput>> builder);
-    }
+        void AppendComparison(IComparison<TInput, TOutput> comparison);
 
-    /// <summary>
-    /// Interface for objects used to construct compound boolean comparisons.
-    /// </summary>
-    /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
-    /// <typeparam name="TOutput">The return type of the function under test</typeparam>
-    public interface IFluentComparisonBuilder<TInput, TOutput>
-    {
-        IComparison<TInput, TOutput> Comparison { get; }
+        IFluentComparisonBuilder<TInput, TOutput> Equals(TOutput literal);
+        IFluentComparisonBuilder<TInput, TOutput> Equals(Func<TInput, TOutput> function);
 
-        IFluentComparisonBuilder<TInput, TOutput> EqualTo(TOutput literal);
-        IFluentComparisonBuilder<TInput, TOutput> EqualTo(Func<TInput, TOutput> function);
+        IFluentComparisonBuilder<TInput, TOutput> IsNotEqual(TOutput literal);
+        IFluentComparisonBuilder<TInput, TOutput> IsNotEqual(Func<TInput, TOutput> function);
 
-        IFluentComparisonBuilder<TInput, TOutput> DifferentFrom(TOutput literal);
-        IFluentComparisonBuilder<TInput, TOutput> DifferentFrom(Func<TInput, TOutput> function);
-
-        IFluentComparisonBuilder<TInput, TOutput> And(IFluentComparisonBuilder<TInput, TOutput> left,
-            IFluentComparisonBuilder<TInput, TOutput> right);
-
-        IFluentComparisonBuilder<TInput, TOutput> Or(IFluentComparisonBuilder<TInput, TOutput> left,
-            IFluentComparisonBuilder<TInput, TOutput> right);
-
-        IComparison<TInput, TOutput> Build();
+        IFluentComparisonBuilder<TInput, TOutput> And();
+        IFluentComparisonBuilder<TInput, TOutput> Or();
+        IFluentComparisonBuilder<TInput, TOutput> BeginBlock();
+        IFluentComparisonBuilder<TInput, TOutput> EndBlock();
     }
 
     public class FluentTestBuilder : IFluentTestBuilder
@@ -141,7 +121,7 @@ namespace InternalDSL.Builder
             return this;
         }
 
-        public IFluentPropertyComparisonBuilder<TInput, TOutput> Then<TOutput>(Func<TInput, TOutput> function)
+        public IFluentComparisonBuilder<TInput, TOutput> Then<TOutput>(Func<TInput, TOutput> function)
         {
             //"Upgrade" to a builder that now also knows the output type
             return new FluentTestBuilder<TInput, TOutput>()
@@ -157,25 +137,88 @@ namespace InternalDSL.Builder
         }
     }
 
-    internal class FluentTestBuilder<TInput, TOutput> : FluentTestBuilder<TInput>,
-        IFluentPropertyComparisonBuilder<TInput, TOutput>
+    internal class FluentTestBuilder<TInput, TOutput> : FluentTestBuilder<TInput>, IFluentComparisonBuilder<TInput, TOutput>
     {
         internal Func<TInput, TOutput> Function;
-        internal IComparison<TInput, TOutput> Comparison;
+        private readonly Stack<IComparison<TInput, TOutput>> _ongoingComparisons = new Stack<IComparison<TInput, TOutput>>();
+        private readonly Stack<BooleanOperator> _ongoingOperators = new Stack<BooleanOperator>();
+        private bool _shouldPush;
+        private int _nestDepth;
 
-        public IFluentTestBuilder<TInput> Satisfies(
-            Func<IFluentComparisonBuilder<TInput, TOutput>, IFluentComparisonBuilder<TInput, TOutput>> builder)
+        public void AppendComparison(IComparison<TInput, TOutput> comparison)
         {
-            var comparison = builder(new FluentComparisonBuilder<TInput, TOutput>()).Build();
-
-            if (comparison == null)
+            if (_shouldPush || !_ongoingComparisons.Any())
             {
-                throw new ArgumentException("Property cannot satisfy null comparison", nameof(comparison));
+                _ongoingComparisons.Push(comparison);
+                _shouldPush = false;
+            }
+            else
+            {
+                var currentComparison = _ongoingComparisons.Pop();
+                var op = _ongoingOperators.Pop(); //TODO: Ensure correct number of operators on stack
+                var newComparison = new BlockComparison<TInput, TOutput>(currentComparison, comparison, op);
+                _ongoingComparisons.Push(newComparison);
+            }
+        }
+
+        public IFluentComparisonBuilder<TInput, TOutput> Equals(TOutput literal)
+        {
+            AppendComparison(new LiteralEqualityComparison<TInput, TOutput>(literal));
+            return this;
+        }
+
+        public IFluentComparisonBuilder<TInput, TOutput> Equals(Func<TInput, TOutput> function)
+        {
+            AppendComparison(new FunctionEqualityComparison<TInput, TOutput>(function));
+            return this;
+        }
+
+        public IFluentComparisonBuilder<TInput, TOutput> IsNotEqual(TOutput literal)
+        {
+            AppendComparison(new LiteralEqualityComparison<TInput, TOutput>(literal, false));
+            return this;
+        }
+
+        public IFluentComparisonBuilder<TInput, TOutput> IsNotEqual(Func<TInput, TOutput> function)
+        {
+            AppendComparison(new FunctionEqualityComparison<TInput, TOutput>(function, false));
+            return this;
+        }
+
+        public IFluentComparisonBuilder<TInput, TOutput> And()
+        {
+            _ongoingOperators.Push(BooleanOperator.AND);
+            return this;
+        }
+
+        public IFluentComparisonBuilder<TInput, TOutput> Or()
+        {
+            _ongoingOperators.Push(BooleanOperator.OR);
+            return this;
+        }
+
+        public IFluentComparisonBuilder<TInput, TOutput> BeginBlock()
+        {
+            _nestDepth++;
+            _shouldPush = true;
+            return this;
+        }
+
+        public IFluentComparisonBuilder<TInput, TOutput> EndBlock()
+        {
+            if (_ongoingComparisons.Count > _nestDepth)
+            {
+                var right = _ongoingComparisons.Pop();
+                var left = _ongoingComparisons.Pop();
+                var op = _ongoingOperators.Pop();
+                //TODO: Something with ensuring both stacks have similar heights (operator stack 1 smaller)
+
+                var newComparison = new BlockComparison<TInput, TOutput>(left, right, op);
+
+                _ongoingComparisons.Push(newComparison);
             }
 
-            var compoundComparison = new BlockComparison<TInput, TOutput>(Comparison, comparison, BooleanOperator.AND);
-            Comparison = compoundComparison;
-
+            _nestDepth--;
             return this;
         }
 
@@ -203,53 +246,18 @@ namespace InternalDSL.Builder
                 throw new InvalidOperationException("Missing test function for new property");
             }
 
-            if (Comparison == null)
+            if (! _ongoingComparisons.Any())
             {
                 throw new InvalidOperationException("Missing comparison for new property");
             }
 
-            var prop = new Property<TInput, TOutput>(Description, Function, Comparison);
-            SemanticModel.AddProperty(prop);
-        }
-    }
+            if (_ongoingComparisons.Count > 1)
+            {
+                throw new InvalidOperationException("Unfinished comparison for new property");
+            }
 
-    internal class FluentComparisonBuilder<TInput, TOutput> : IFluentComparisonBuilder<TInput, TOutput>
-    {
-        public IComparison<TInput, TOutput> Comparison { get; private set; }
-
-        public IFluentComparisonBuilder<TInput, TOutput> EqualTo(TOutput literal)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFluentComparisonBuilder<TInput, TOutput> EqualTo(Func<TInput, TOutput> function)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFluentComparisonBuilder<TInput, TOutput> DifferentFrom(TOutput literal)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFluentComparisonBuilder<TInput, TOutput> DifferentFrom(Func<TInput, TOutput> function)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFluentComparisonBuilder<TInput, TOutput> And(IFluentComparisonBuilder<TInput, TOutput> left, IFluentComparisonBuilder<TInput, TOutput> right)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFluentComparisonBuilder<TInput, TOutput> Or(IFluentComparisonBuilder<TInput, TOutput> left, IFluentComparisonBuilder<TInput, TOutput> right)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IComparison<TInput, TOutput> Build()
-        {
-            throw new NotImplementedException();
+            var property = new Property<TInput, TOutput>(Description, Function, _ongoingComparisons.Pop());
+            SemanticModel.AddProperty(property);
         }
     }
 
@@ -259,32 +267,36 @@ namespace InternalDSL.Builder
     /// </summary>
     public static class ComparisonBuilderExtensionMethods
     {
-        public static IFluentComparisonBuilder<TInput, TOutput> GreaterThan<TInput, TOutput>(
+        public static IFluentComparisonBuilder<TInput, TOutput> IsGreaterThan<TInput, TOutput>(
             this IFluentComparisonBuilder<TInput, TOutput> self, TOutput literal)
             where TOutput : IComparable<TOutput>
         {
-            return null;
+            self.AppendComparison(new LiteralComparison<TInput, TOutput>(literal, EqualityOperator.GreaterThan));
+            return self;
         }
 
-        public static IFluentComparisonBuilder<TInput, TOutput> GreaterThan<TInput, TOutput>(
+        public static IFluentComparisonBuilder<TInput, TOutput> IsGreaterThan<TInput, TOutput>(
             this IFluentComparisonBuilder<TInput, TOutput> self, Func<TInput, TOutput> function)
             where TOutput : IComparable<TOutput>
         {
-            return null;
+            self.AppendComparison(new FunctionComparison<TInput, TOutput>(function, EqualityOperator.GreaterThan));
+            return self;
         }
 
-        public static IFluentComparisonBuilder<TInput, TOutput> LessThan<TInput, TOutput>(
+        public static IFluentComparisonBuilder<TInput, TOutput> IsLessThan<TInput, TOutput>(
             this IFluentComparisonBuilder<TInput, TOutput> self, TOutput literal)
             where TOutput : IComparable<TOutput>
         {
-            return null;
+            self.AppendComparison(new LiteralComparison<TInput, TOutput>(literal, EqualityOperator.LessThan));
+            return self;
         }
 
-        public static IFluentComparisonBuilder<TInput, TOutput> LessThan<TInput, TOutput>(
+        public static IFluentComparisonBuilder<TInput, TOutput> IsLessThan<TInput, TOutput>(
             this IFluentComparisonBuilder<TInput, TOutput> self, Func<TInput, TOutput> function)
             where TOutput : IComparable<TOutput>
         {
-            return null;
+            self.AppendComparison(new FunctionComparison<TInput, TOutput>(function, EqualityOperator.LessThan));
+            return self;
         }
     }
 }
