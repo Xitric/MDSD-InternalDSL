@@ -1,9 +1,7 @@
 using System;
-using System.Threading;
 using InternalDSL.Builder;
 using InternalDSL.SemanticModel;
-using InternalDSL.SemanticModel.Generator;
-using static InternalDSL.SemanticModel.Generator.Generator;
+using static InternalDSL.Builder.Generators;
 using static InternalDSL.Builder.FluentTestBuilder;
 
 namespace InternalDSL

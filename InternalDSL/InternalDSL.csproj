@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builder\FluentTestBuilder.cs" />
+    <Compile Include="Builder\Generators.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SemanticModel\Generator\CollectionGenerator.cs" />
