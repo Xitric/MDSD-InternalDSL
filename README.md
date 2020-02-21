@@ -111,6 +111,6 @@ public class Integer : Wrapper<int>
 ```
 
 # Separation of concerns
-I have divided the project into SemanticModel, Builder, and Executor. The Builder directory contains everything related to the DSL itself. The Executor directory contains classes for using the semantic model to run actual unit tests. The SemanticModel directory only contains a set of data classes.
+I have divided the project into SemanticModel, Builder, and Executor. The Builder directory contains everything related to the DSL itself. The Executor directory contains classes for using the semantic model to run actual unit tests and validating the semantic model. The SemanticModel directory only contains a set of data classes.
 
-This separation of concerns proved very difficult because of the use of generics. I believe that the result is aceptable, albeit not perfect. The benefit is that the semantic model can be used for both execution, validation, and even code generation in the future.
+This separation of concerns proved very difficult because of the use of generics. I believe that the result is aceptable, albeit not perfect. The benefit is that the semantic model can be used for both execution and validation (as I have done), and even code generation in the future.

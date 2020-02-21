@@ -61,6 +61,7 @@
     <Compile Include="Executor\ComparisonExecutor.cs" />
     <Compile Include="Executor\PropertyException.cs" />
     <Compile Include="Executor\TestExecutor.cs" />
+    <Compile Include="Executor\TestValidator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SemanticModel\Generator\CollectionGenerator.cs" />

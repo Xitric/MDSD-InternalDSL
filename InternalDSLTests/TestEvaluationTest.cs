@@ -7,11 +7,12 @@ using static InternalDSL.Builder.FluentTestBuilder;
 namespace InternalDSLTests
 {
     [TestClass]
-    public class UnitTest1
+    public class TestEvaluationTest
     {
         [TestMethod]
         public void SumTest()
         {
+            //Create a test that is supposed to pass
             var sumTest =
                 Test("Test of Sum function")
                     .Samples(100)
