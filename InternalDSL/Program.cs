@@ -46,6 +46,22 @@ namespace InternalDSL
                         .IsGreaterThan("0")
                     .Build();
 
+            var sumTestLambdas =
+                Test("Test of Sum function")
+                    .Samples(100)
+                    .Generator(
+                        Pair(PosSmallInteger, PosSmallInteger))
+                    .Property("Returns the sum of its input")
+                    .Given(i => i.Item1 > 0)
+                    .Given(i => i.Item2 > 0)
+                    .ThenLambda(i => Add(i.Item1, i.Item2))
+                    .Satisfies(b => b.And(
+                        _ => b.Or(
+                            __ => b.Equals(0),
+                            __ => b.Equals(1)
+                            ),
+                        _ => b.IsNotEqual(6)
+                    )).Build();
         }
 
         internal static int Add(int a, int b)

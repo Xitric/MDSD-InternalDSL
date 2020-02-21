@@ -84,6 +84,18 @@ namespace InternalDSL.Builder
         /// <param name="function">The function under test</param>
         /// <returns>The progressive builder</returns>
         IFluentComparisonBuilder<TInput, TOutput> Then<TOutput>(Func<TInput, TOutput> function);
+
+        /// <summary>
+        /// Specify the function under test. This function will be called with
+        /// sampled input values from the generator, and its output will be
+        /// compared against the post-conditions of the property. This method
+        /// will return a special builder that uses nested lambda expressions
+        /// for creating boolean comparisons of the function output.
+        /// </summary>
+        /// <typeparam name="TOutput">The return type of the function under test</typeparam>
+        /// <param name="function">The function under test</param>
+        /// <returns>The progressive builder that uses nested lambda expressions</returns>
+        IFluentComparisonLambdaBuilder<TInput, TOutput> ThenLambda<TOutput>(Func<TInput, TOutput> function);
     }
 
     /// <summary>
@@ -177,6 +189,24 @@ namespace InternalDSL.Builder
         IFluentComparisonCombinationBuilder<TInput, TOutput> EndBlock();
     }
 
+    public interface IFluentComparisonLambdaBuilder<TInput, TOutput>
+    {
+        IFluentTestBuilder<TInput> Satisfies(Func<IFluentComparisonLambdaBuilder<TInput, TOutput>, IComparison<TInput, TOutput>> comparisonBuilder);
+
+        IComparison<TInput, TOutput> Equals(TOutput literal);
+        IComparison<TInput, TOutput> Equals(Func<TInput, TOutput> function);
+
+        IComparison<TInput, TOutput> IsNotEqual(TOutput literal);
+        IComparison<TInput, TOutput> IsNotEqual(Func<TInput, TOutput> function);
+
+        IComparison<TInput, TOutput> And(
+            Func<IFluentComparisonLambdaBuilder<TInput, TOutput>, IComparison<TInput, TOutput>> left,
+            Func<IFluentComparisonLambdaBuilder<TInput, TOutput>, IComparison<TInput, TOutput>> right);
+        IComparison<TInput, TOutput> Or(
+            Func<IFluentComparisonLambdaBuilder<TInput, TOutput>, IComparison<TInput, TOutput>> left,
+            Func<IFluentComparisonLambdaBuilder<TInput, TOutput>, IComparison<TInput, TOutput>> right);
+    }
+
     public class FluentTestBuilder : IFluentTestBuilder
     {
         protected string Name { get; set; }
@@ -245,6 +275,21 @@ namespace InternalDSL.Builder
         {
             //"Upgrade" to a builder that now also knows the output type
             return new FluentTestBuilder<TInput, TOutput>()
+            {
+                Name = Name,
+                SampleCount = SampleCount,
+                Generator = Generator,
+                SemanticModel = SemanticModel,
+                Description = Description,
+                Preconditions = Preconditions,
+                Function = function
+            };
+        }
+
+        public IFluentComparisonLambdaBuilder<TInput, TOutput> ThenLambda<TOutput>(Func<TInput, TOutput> function)
+        {
+            //"Upgrade" to a builder that now also knows the output type and uses lambdas
+            return new FluentTestLambdaBuilder<TInput, TOutput>()
             {
                 Name = Name,
                 SampleCount = SampleCount,
@@ -370,6 +415,60 @@ namespace InternalDSL.Builder
 
             var property = new Property<TInput, TOutput>(Description, Function, _ongoingComparisons.Pop());
             SemanticModel.AddProperty(property);
+        }
+    }
+
+    internal class FluentTestLambdaBuilder<TInput, TOutput> : FluentTestBuilder<TInput>,
+        IFluentComparisonLambdaBuilder<TInput, TOutput>
+    {
+        internal Func<TInput, TOutput> Function;
+
+        public IFluentTestBuilder<TInput> Satisfies(Func<IFluentComparisonLambdaBuilder<TInput, TOutput>, IComparison<TInput, TOutput>> comparisonBuilder)
+        {
+            var comparison = comparisonBuilder(this);
+            var property = new Property<TInput, TOutput>(Description, Function, comparison);
+            SemanticModel.AddProperty(property);
+            return this;
+        }
+
+        public IComparison<TInput, TOutput> Equals(TOutput literal)
+        {
+            return new LiteralEqualityComparison<TInput, TOutput>(literal);
+        }
+
+        public IComparison<TInput, TOutput> Equals(Func<TInput, TOutput> function)
+        {
+            return new FunctionEqualityComparison<TInput, TOutput>(function);
+        }
+
+        public IComparison<TInput, TOutput> IsNotEqual(TOutput literal)
+        {
+            return new LiteralEqualityComparison<TInput, TOutput>(literal, false);
+        }
+
+        public IComparison<TInput, TOutput> IsNotEqual(Func<TInput, TOutput> function)
+        {
+            return new FunctionEqualityComparison<TInput, TOutput>(function, false);
+        }
+
+        public IComparison<TInput, TOutput> And(
+            Func<IFluentComparisonLambdaBuilder<TInput, TOutput>, IComparison<TInput, TOutput>> left,
+            Func<IFluentComparisonLambdaBuilder<TInput, TOutput>, IComparison<TInput, TOutput>> right)
+        {
+            var leftComparison = left(this);
+            var rightComparison = right(this);
+
+            return new BlockComparison<TInput, TOutput>(leftComparison, rightComparison, BooleanOperator.AND);
+        }
+
+        public IComparison<TInput, TOutput> Or(
+            Func<IFluentComparisonLambdaBuilder<TInput, TOutput>, IComparison<TInput, TOutput>> left,
+            Func<IFluentComparisonLambdaBuilder<TInput, TOutput>, IComparison<TInput, TOutput>> right)
+        {
+            var leftComparison = left(this);
+            var rightComparison = right(this);
+
+            return new BlockComparison<TInput, TOutput>(leftComparison, rightComparison, BooleanOperator.OR);
         }
     }
 
