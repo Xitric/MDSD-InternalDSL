@@ -108,35 +108,40 @@ namespace InternalDSL.Builder
         IFluentComparisonCombinationBuilder<TInput, TOutput> AppendComparison(IComparison<TInput, TOutput> comparison);
 
         /// <summary>
-        /// TODO
+        /// Add a comparison of the function output against a literal value.
         /// </summary>
-        /// <param name="literal"></param>
+        /// <param name="literal">The literal value to compare against</param>
         /// <returns>The progressive builder</returns>
         IFluentComparisonCombinationBuilder<TInput, TOutput> Equals(TOutput literal);
 
         /// <summary>
-        /// TODO
+        /// Add a comparison of the function output against that of another
+        /// function.
         /// </summary>
-        /// <param name="function"></param>
+        /// <param name="function">The function whose output to compare against</param>
         /// <returns>The progressive builder</returns>
         IFluentComparisonCombinationBuilder<TInput, TOutput> Equals(Func<TInput, TOutput> function);
 
         /// <summary>
-        /// TODO
+        /// Add a comparison that checks if the output of the function is not
+        /// equal to the given literal value.
         /// </summary>
-        /// <param name="literal"></param>
+        /// <param name="literal">The literal value to compare against</param>
         /// <returns>The progressive builder</returns>
         IFluentComparisonCombinationBuilder<TInput, TOutput> IsNotEqual(TOutput literal);
 
         /// <summary>
-        /// TODO
+        /// Add a comparison that checks if the output of the function is not
+        /// equal to that of another function.
         /// </summary>
-        /// <param name="function"></param>
+        /// <param name="function">The function whose output to compare against</param>
         /// <returns>The progressive builder</returns>
         IFluentComparisonCombinationBuilder<TInput, TOutput> IsNotEqual(Func<TInput, TOutput> function);
 
         /// <summary>
-        /// TODO
+        /// Begin a new block of comparisons. A block is similar to using
+        /// parentheses and it affects the order in which comparisons are
+        /// evaluated and ho they are affected by the boolean operators.
         /// </summary>
         /// <returns>The progressive builder</returns>
         IFluentComparisonBuilder<TInput, TOutput> BeginBlock();
@@ -151,19 +156,22 @@ namespace InternalDSL.Builder
     public interface IFluentComparisonCombinationBuilder<TInput, TOutput> : IFluentTestBuilder<TInput>
     {
         /// <summary>
-        /// TODO
+        /// Combine the previous comparison with another one using the boolean
+        /// AND operator.
         /// </summary>
         /// <returns>The progressive builder</returns>
         IFluentComparisonBuilder<TInput, TOutput> And();
 
         /// <summary>
-        /// TODO
+        /// Combine the previous comparison with another one using the boolean
+        /// OR operator.
         /// </summary>
         /// <returns>The progressive builder</returns>
         IFluentComparisonBuilder<TInput, TOutput> Or();
 
         /// <summary>
-        /// TODO
+        /// Finish the current block of comparisons. This is similar to adding
+        /// a closing parenthesis in a boolean expression.
         /// </summary>
         /// <returns>The progressive builder</returns>
         IFluentComparisonCombinationBuilder<TInput, TOutput> EndBlock();
@@ -175,9 +183,10 @@ namespace InternalDSL.Builder
         protected int SampleCount { get; set; } = 100;
 
         /// <summary>
-        /// TODO: Static method to start the chain, can be statically imported
+        /// Begin the chain for building a new test. Usually this method will
+        /// be available through static importing.
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">The name of the test, used for referring to it and for printing if the test fails</param>
         /// <returns>The progressive builder</returns>
         public static FluentTestBuilder Test(string name)
         {
@@ -371,13 +380,14 @@ namespace InternalDSL.Builder
     public static class ComparisonBuilderExtensionMethods
     {
         /// <summary>
-        /// TODO
+        /// Check if the output of the function under test is greater than the
+        /// specified literal value.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="self"></param>
-        /// <param name="literal"></param>
-        /// <returns></returns>
+        /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
+        /// <typeparam name="TOutput">The return type of the function under test</typeparam>
+        /// <param name="self">The progressive builder</param>
+        /// <param name="literal">The literal value to compare against</param>
+        /// <returns>The progressive builder</returns>
         public static IFluentComparisonCombinationBuilder<TInput, TOutput> IsGreaterThan<TInput, TOutput>(
             this IFluentComparisonBuilder<TInput, TOutput> self, TOutput literal)
             where TOutput : IComparable<TOutput>
@@ -386,13 +396,14 @@ namespace InternalDSL.Builder
         }
 
         /// <summary>
-        /// TODO
+        /// Check if the output of the function under test is greater than the
+        /// output of another function.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="self"></param>
-        /// <param name="function"></param>
-        /// <returns></returns>
+        /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
+        /// <typeparam name="TOutput">The return type of the function under test</typeparam>
+        /// <param name="self">The progressive builder</param>
+        /// <param name="function">The function whose output to compare against</param>
+        /// <returns>The progressive builder</returns>
         public static IFluentComparisonCombinationBuilder<TInput, TOutput> IsGreaterThan<TInput, TOutput>(
             this IFluentComparisonBuilder<TInput, TOutput> self, Func<TInput, TOutput> function)
             where TOutput : IComparable<TOutput>
@@ -401,13 +412,14 @@ namespace InternalDSL.Builder
         }
 
         /// <summary>
-        /// TODO
+        /// Check if the output of the function under test is less than the
+        /// specified literal value.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="self"></param>
-        /// <param name="literal"></param>
-        /// <returns></returns>
+        /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
+        /// <typeparam name="TOutput">The return type of the function under test</typeparam>
+        /// <param name="self">The progressive builder</param>
+        /// <param name="literal">The literal value to compare against</param>
+        /// <returns>The progressive builder</returns>
         public static IFluentComparisonCombinationBuilder<TInput, TOutput> IsLessThan<TInput, TOutput>(
             this IFluentComparisonBuilder<TInput, TOutput> self, TOutput literal)
             where TOutput : IComparable<TOutput>
@@ -416,13 +428,14 @@ namespace InternalDSL.Builder
         }
 
         /// <summary>
-        /// TODO
+        /// Check if the output of the function under test is less than the
+        /// output of another function.
         /// </summary>
-        /// <typeparam name="TInput"></typeparam>
-        /// <typeparam name="TOutput"></typeparam>
-        /// <param name="self"></param>
-        /// <param name="function"></param>
-        /// <returns></returns>
+        /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
+        /// <typeparam name="TOutput">The return type of the function under test</typeparam>
+        /// <param name="self">The progressive builder</param>
+        /// <param name="function">The function whose output to compare against</param>
+        /// <returns>The progressive builder</returns>
         public static IFluentComparisonCombinationBuilder<TInput, TOutput> IsLessThan<TInput, TOutput>(
             this IFluentComparisonBuilder<TInput, TOutput> self, Func<TInput, TOutput> function)
             where TOutput : IComparable<TOutput>
