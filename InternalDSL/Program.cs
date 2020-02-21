@@ -1,7 +1,9 @@
+using System;
 using InternalDSL.Builder;
 using InternalDSL.Executor;
 using static InternalDSL.Builder.Generators;
 using static InternalDSL.Builder.FluentTestBuilder;
+using Boolean = InternalDSL.Builder.Boolean;
 
 namespace InternalDSL
 {
@@ -54,16 +56,51 @@ namespace InternalDSL
                     .Generator(
                         Pair(PosSmallInteger, PosSmallInteger))
                     .Property("Returns the sum of its input")
+                        .Given(i => i.Item1 > 0)
+                        .Given(i => i.Item2 > 0)
+                        .ThenLambda(i => Add(i.Item1, i.Item2).I())
+                        .Satisfies(b => b.And(
+                            _ => b.Or(
+                                __ => b.Equals(i => i.Item1 + i.Item2),
+                                __ => b.Equals(i => i.Item2 + i.Item1)
+                                ),
+                            _ => b.And(
+                                __ => b.IsNotEqual(0),
+                                __ => b.Or(
+                                    ___ => b.IsNotEqual(int.MaxValue),
+                                    ___ => b.IsNotEqual(1)
+                                    )
+                                )
+                            ))
+                    .Build();
+
+            Test("Test of Add function")
+                .Samples(10000)
+                .Generator(Pair(
+                    PosSmallInteger, PosSmallInteger))
+                .Property("Returns the sum of its input")
                     .Given(i => i.Item1 > 0)
                     .Given(i => i.Item2 > 0)
-                    .ThenLambda(i => Add(i.Item1, i.Item2).I())
-                    .Satisfies(b => b.And(
-                        _ => b.Or(
-                            __ => b.Equals(0),
-                            __ => b.Equals(1)
-                            ),
-                        _ => b.IsNotEqual(6)
-                    )).Build();
+                    .Then(i => Add(i.Item1, i.Item2).I())
+                    .BeginBlock()
+                        .Equals(i => i.Item1 + i.Item2)
+                        .Or()
+                        .Equals(i => i.Item2 + i.Item1)
+                    .EndBlock()
+                    .And()
+                    .BeginBlock()
+                        .IsGreaterThan(0)
+                        .And()
+                        .BeginBlock()
+                            .IsNotEqual(int.MaxValue)
+                            .Or()
+                            .IsNotEqual(1)
+                        .EndBlock()
+                    .EndBlock()
+                .Property("Is not the difference")
+                    .Then(i => Add(i.Item1, i.Item2).I())
+                    .IsNotEqual(i => i.Item1 - i.Item2)
+                .Build();
         }
 
         internal static int Add(int a, int b)

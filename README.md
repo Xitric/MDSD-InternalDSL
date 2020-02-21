@@ -86,11 +86,31 @@ The implementation of the method chaining builder for boolean expressions makes 
 I have decided that the method chaining approach works best in this case, because of the syntax of C#. The nested lambda approach might be preferable in other languages. It was interesting to realize how much more complexity was required for implementing a DSL that was easier to use.
 
 # Parsing
-- Context variables (stacks, nesting depth)
+Generating the semantic model from the DSL is handled by various builders. These builders are primarily divided into separate classes because of how the generic types become available over time, e.g. `FluentTestBuilder -> FluentTestBuilder<TInput> -> FluentTestBuilder<TInput, TOutput>`.
+
+The class `FluentTestBuilder<TInput, TOutput>` is responsible for building up the boolean expresisons for method chaining. It uses a stack for boolean comparisons and another for operators, as well as context variables for keeping track of nesting depth and parentheses. Over time, it will pop comparisons and operators off of these stacks and combine them into compound expressions using the composite pattern.
 
 ## Generics and primitives
-- Generics in general and how it helps us (autocomplete)
-- Primitives and autoboxing for generics
+The use of generics helps greatly with code completion and writing legal DSL. For instance, the function generator passed to the `Generator()` method affects the input type provided to functions such as `Then()` and `Equals()`. The function provided to `Then()` further determines the required return type from methods used to compose the boolean expressions.
+
+The way this is implemented does not allow for using primitives as return types. Thus, I needed to box primitives in reference types - I basically reinvented Java's autoboxing. All that is required is to explicitly specify the type in the call to `Then()` or `ThenLambda()`:
+
+```csharp
+.Then(i => Add(i.Item1, i.Item2).I())
+```
+
+The call `.I()` tells that the return type must be boxed in an `Integer` reference type. By using C# implicit conversions, the return types of all subsequent lambdas are automatically boxed. This is handled by `PrimitiveWrappers.cs`:
+
+```csharp
+public class Integer : Wrapper<int>
+{
+    ...
+    public static implicit operator Integer(int i) => new Integer(i);
+    ...
+}
+```
 
 # Separation of concerns
-- Separation of DSL, semantic model, and execution
+I have divided the project into SemanticModel, Builder, and Executor. The Builder directory contains everything related to the DSL itself. The Executor directory contains classes for using the semantic model to run actual unit tests. The SemanticModel directory only contains a set of data classes.
+
+This separation of concerns proved very difficult because of the use of generics. I believe that the result is aceptable, albeit not perfect. The benefit is that the semantic model can be used for both execution, validation, and even code generation in the future.
