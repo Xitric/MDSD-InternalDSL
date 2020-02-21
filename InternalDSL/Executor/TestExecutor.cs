@@ -2,23 +2,35 @@
 
 namespace InternalDSL.Executor
 {
+    /// <summary>
+    /// Utility class for easily creating a new TestExecutor.
+    /// </summary>
     public class TestExecutor
     {
-        public static TestExecutor<TInput> Create<TInput>(Test<TInput> test) =>
+        public static TestExecutor<TInput> Create<TInput>(ITest<TInput> test) =>
             new TestExecutor<TInput>(test);
     }
 
+    /// <summary>
+    /// Class used to execute Test objects from the semantic model. It will
+    /// automatically sample the input generator and evaluate each property in
+    /// turn.
+    /// </summary>
     public class TestExecutor<TInput>
     {
-        public Test<TInput> Test { get; }
+        public ITest<TInput> Test { get; }
         private readonly ComparisonExecutor<TInput> _comparisonExecutor;
 
-        public TestExecutor(Test<TInput> test)
+        public TestExecutor(ITest<TInput> test)
         {
             Test = test;
             _comparisonExecutor = new ComparisonExecutor<TInput>();
         }
 
+        /// <summary>
+        /// Execute this test as a unit test. If any violation is found within
+        /// a property, the unit test will fail.
+        /// </summary>
         public void Assert()
         {
             for (var i = 0; i < Test.Samples; i++)

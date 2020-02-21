@@ -52,7 +52,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builder\ComparisonBuilderExtensionMethods.cs" />
     <Compile Include="Builder\FluentTestBuilder.cs" />
+    <Compile Include="Builder\FluentTestLambdaBuilder.cs" />
+    <Compile Include="Builder\IFluentTestBuilder.cs" />
     <Compile Include="Builder\Generators.cs" />
     <Compile Include="Builder\PrimitiveWrappers.cs" />
     <Compile Include="Executor\ComparisonExecutor.cs" />

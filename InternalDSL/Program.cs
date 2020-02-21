@@ -1,9 +1,7 @@
-using System;
 using InternalDSL.Builder;
 using InternalDSL.Executor;
 using static InternalDSL.Builder.Generators;
 using static InternalDSL.Builder.FluentTestBuilder;
-using Boolean = InternalDSL.Builder.Boolean;
 
 namespace InternalDSL
 {

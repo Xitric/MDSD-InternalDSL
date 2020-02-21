@@ -13,6 +13,10 @@ namespace InternalDSL.SemanticModel.Generator
         }
     }
 
+    /// <summary>
+    /// A generator for creating randomly sized arrays of random values.
+    /// </summary>
+    /// <typeparam name="T">The type of values to store in the array</typeparam>
     public class ArrayGenerator<T> : CollectionGenerator<T, T[]>
     {
         public ArrayGenerator(Generator<T> generator) : base(generator)
@@ -32,6 +36,10 @@ namespace InternalDSL.SemanticModel.Generator
         }
     }
 
+    /// <summary>
+    /// A generator for creating randomly sized lists of random values.
+    /// </summary>
+    /// <typeparam name="T">The type of values to store in the list</typeparam>
     public class ListGenerator<T> : CollectionGenerator<T, IList<T>>
     {
         private readonly ArrayGenerator<T> _generator;

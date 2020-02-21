@@ -52,7 +52,7 @@ var crazyGenerator = List(
     )
 ```
 
-I also experimented with nested lambda expressions for composing the boolean comparisons inside of properties. The nested lambda expressions make for a simpler implementation, but also a noisier syntax. More on this [later](#Alternatives). Regardless, the DSL has a hierarchic structure for both generators and boolean expressions.
+I also experimented with nested lambdas for composing the boolean expressions inside of properties. The nested lambda expressions make for a simpler implementation, but also a noisier syntax. More on this [later](#Alternatives). Regardless, the DSL has a hierarchic structure for both generators and boolean expressions.
 
 ## Progressive interfaces
 To assist the user as much as possible, I made use of progressive interfaces when creating the builder. For instance, the `Test()` method returns an interface that only exposes the methods `Samples()` and `Generator()`. The `Generator()` method then returns an interface exposing the methods `Property()` and `Build()`. This results in the IDE only proposing methods that are legal in the current part of the DSL.
@@ -91,7 +91,7 @@ Generating the semantic model from the DSL is handled by various builders. These
 The class `FluentTestBuilder<TInput, TOutput>` is responsible for building up the boolean expresisons for method chaining. It uses a stack for boolean comparisons and another for operators, as well as context variables for keeping track of nesting depth and parentheses. Over time, it will pop comparisons and operators off of these stacks and combine them into compound expressions using the composite pattern.
 
 ## Generics and primitives
-The use of generics helps greatly with code completion and writing legal DSL. For instance, the function generator passed to the `Generator()` method affects the input type provided to functions such as `Then()` and `Equals()`. The function provided to `Then()` further determines the required return type from methods used to compose the boolean expressions.
+The use of generics helps greatly with code completion and writing legal DSL. For instance, the input generator passed to the `Generator()` method affects the input type provided to functions such as `Then()` and `Equals()`. The function provided to `Then()` further determines the required return type from methods used to compose the boolean expressions.
 
 The way this is implemented does not allow for using primitives as return types. Thus, I needed to box primitives in reference types - I basically reinvented Java's autoboxing. All that is required is to explicitly specify the type in the call to `Then()` or `ThenLambda()`:
 

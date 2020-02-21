@@ -13,7 +13,8 @@ namespace InternalDSL.SemanticModel
     }
 
     /// <summary>
-    /// Used tp configure how predicates are combined into more complex predicates.
+    /// Used tp configure how predicates are combined into more complex
+    /// predicates.
     /// </summary>
     public enum BooleanOperator
     {
@@ -35,7 +36,6 @@ namespace InternalDSL.SemanticModel
     /// of another function for equality or inequality only.
     /// </summary>
     /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
-    /// <typeparam name="TOutput">The return type of the function under test</typeparam>
     public class FunctionEqualityComparison<TInput> : IComparison
     {
         public Func<TInput, dynamic> ExpectedFunction { get; }
@@ -53,8 +53,6 @@ namespace InternalDSL.SemanticModel
     /// of another function. This class supports both equality, less than, and
     /// greater than checks.
     /// </summary>
-    /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
-    /// <typeparam name="TOutput">The return type of the function under test</typeparam>
     public class FunctionComparison<TInput> : FunctionEqualityComparison<TInput>
     {
         public EqualityOperator EqualityOperator { get; }
@@ -69,8 +67,6 @@ namespace InternalDSL.SemanticModel
     /// Used to compare a function output with an invariant value for equality
     /// or inequality only.
     /// </summary>
-    /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
-    /// <typeparam name="TOutput">The return type of the function under test</typeparam>
     public class LiteralEqualityComparison<TInput> : FunctionEqualityComparison<TInput>
     {
         public LiteralEqualityComparison(dynamic expected, bool equal = true) : base(i => expected, equal)
@@ -82,8 +78,6 @@ namespace InternalDSL.SemanticModel
     /// Used to compare a function output with an invariant value. This class
     /// supports both equality, less than, and greater than checks.
     /// </summary>
-    /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
-    /// <typeparam name="TOutput">The return type of the function under test</typeparam>
     public class LiteralComparison<TInput> : FunctionComparison<TInput>
     {
         public LiteralComparison(dynamic expected, EqualityOperator equalityOperator) : base(i => expected, equalityOperator)

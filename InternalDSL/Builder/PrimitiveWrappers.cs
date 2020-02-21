@@ -2,6 +2,10 @@
 
 namespace InternalDSL.Builder
 {
+    /// <summary>
+    /// A set of static methods for wrapping primitive types into reference
+    /// types.
+    /// </summary>
     public static class PrimitiveWrappers
     {
         public static Byte By(this byte self)
@@ -40,6 +44,14 @@ namespace InternalDSL.Builder
         }
     }
 
+    /// <summary>
+    /// Superclass for wrapper types. This class provides the capability to
+    /// perform equality checks and comparisons, as well as printing the wrapped
+    /// value.
+    ///
+    /// Subtypes are expected to provide implicit conversion operators.
+    /// </summary>
+    /// <typeparam name="T">The type of value to wrap</typeparam>
     public abstract class Wrapper<T> : IComparable<Wrapper<T>>
     {
         public T Value { get; }

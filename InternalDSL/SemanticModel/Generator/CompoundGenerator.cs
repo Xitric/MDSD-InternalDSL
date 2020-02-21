@@ -1,5 +1,10 @@
 ﻿namespace InternalDSL.SemanticModel.Generator
 {
+    /// <summary>
+    /// A generator for creating two-tuples of random values.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first value in the tuple</typeparam>
+    /// <typeparam name="T2">The type of the second value in the tuple</typeparam>
     public class PairGenerator<T1, T2> : Generator<(T1, T2)>
     {
         private readonly Generator<T1> _generator1;
@@ -17,6 +22,12 @@
         }
     }
 
+    /// <summary>
+    /// A generator for creating three-tuples of random values.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first value in the tuple</typeparam>
+    /// <typeparam name="T2">The type of the second value in the tuple</typeparam>
+    /// <typeparam name="T3">The type of the third value in the tuple</typeparam>
     public class TripletGenerator<T1, T2, T3> : Generator<(T1, T2, T3)>
     {
         private readonly Generator<T1> _generator1;
