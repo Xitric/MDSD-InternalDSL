@@ -1,4 +1,5 @@
 using InternalDSL.Builder;
+using InternalDSL.Executor;
 using static InternalDSL.Builder.Generators;
 using static InternalDSL.Builder.FluentTestBuilder;
 
@@ -43,6 +44,9 @@ namespace InternalDSL
                         .Or()
                         .IsGreaterThan("0")
                     .Build();
+
+            var executor = TestExecutor.Create(sumTest);
+            executor.Assert();
 
             var sumTestLambdas =
                 Test("Test of Sum function")
