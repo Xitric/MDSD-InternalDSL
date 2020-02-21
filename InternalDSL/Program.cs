@@ -1,6 +1,4 @@
-using System;
 using InternalDSL.Builder;
-using InternalDSL.SemanticModel;
 using static InternalDSL.Builder.Generators;
 using static InternalDSL.Builder.FluentTestBuilder;
 
@@ -18,7 +16,7 @@ namespace InternalDSL
                     .Property("Returns the sum of its input")
                         .Given(i => i.Item1 > 0)
                         .Given(i => i.Item2 > 0)
-                        .Then(i => Add(i.Item1, i.Item2))
+                        .Then(i => Add(i.Item1, i.Item2).I())
                         .Equals(i => i.Item1 + i.Item2)
                         .And()
                         .BeginBlock()
@@ -54,7 +52,7 @@ namespace InternalDSL
                     .Property("Returns the sum of its input")
                     .Given(i => i.Item1 > 0)
                     .Given(i => i.Item2 > 0)
-                    .ThenLambda(i => Add(i.Item1, i.Item2))
+                    .ThenLambda(i => Add(i.Item1, i.Item2).I())
                     .Satisfies(b => b.And(
                         _ => b.Or(
                             __ => b.Equals(0),
