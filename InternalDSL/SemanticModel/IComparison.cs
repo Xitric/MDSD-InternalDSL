@@ -36,12 +36,12 @@ namespace InternalDSL.SemanticModel
     /// </summary>
     /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
     /// <typeparam name="TOutput">The return type of the function under test</typeparam>
-    public class FunctionEqualityComparison<TInput, TOutput> : IComparison
+    public class FunctionEqualityComparison<TInput> : IComparison
     {
-        public Func<TInput, TOutput> ExpectedFunction { get; }
+        public Func<TInput, dynamic> ExpectedFunction { get; }
         public bool CheckEqual { get; }
 
-        public FunctionEqualityComparison(Func<TInput, TOutput> expectedFunction, bool equal = true)
+        public FunctionEqualityComparison(Func<TInput, dynamic> expectedFunction, bool equal = true)
         {
             ExpectedFunction = expectedFunction;
             CheckEqual = equal;
@@ -55,11 +55,11 @@ namespace InternalDSL.SemanticModel
     /// </summary>
     /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
     /// <typeparam name="TOutput">The return type of the function under test</typeparam>
-    public class FunctionComparison<TInput, TOutput> : FunctionEqualityComparison<TInput, TOutput> where TOutput : IComparable<TOutput>
+    public class FunctionComparison<TInput> : FunctionEqualityComparison<TInput>
     {
         public EqualityOperator EqualityOperator { get; }
 
-        public FunctionComparison(Func<TInput, TOutput> expectedFunction, EqualityOperator equalityOperator) : base(expectedFunction)
+        public FunctionComparison(Func<TInput, dynamic> expectedFunction, EqualityOperator equalityOperator) : base(expectedFunction)
         {
             EqualityOperator = equalityOperator;
         }
@@ -71,9 +71,9 @@ namespace InternalDSL.SemanticModel
     /// </summary>
     /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
     /// <typeparam name="TOutput">The return type of the function under test</typeparam>
-    public class LiteralEqualityComparison<TInput, TOutput> : FunctionEqualityComparison<TInput, TOutput>
+    public class LiteralEqualityComparison<TInput> : FunctionEqualityComparison<TInput>
     {
-        public LiteralEqualityComparison(TOutput expected, bool equal = true) : base(i => expected, equal)
+        public LiteralEqualityComparison(dynamic expected, bool equal = true) : base(i => expected, equal)
         {
         }
     }
@@ -84,9 +84,9 @@ namespace InternalDSL.SemanticModel
     /// </summary>
     /// <typeparam name="TInput">The type of input given to the function under test</typeparam>
     /// <typeparam name="TOutput">The return type of the function under test</typeparam>
-    public class LiteralComparison<TInput, TOutput> : FunctionComparison<TInput, TOutput> where TOutput : IComparable<TOutput>
+    public class LiteralComparison<TInput> : FunctionComparison<TInput>
     {
-        public LiteralComparison(TOutput expected, EqualityOperator equalityOperator) : base(i => expected, equalityOperator)
+        public LiteralComparison(dynamic expected, EqualityOperator equalityOperator) : base(i => expected, equalityOperator)
         {
         }
     }

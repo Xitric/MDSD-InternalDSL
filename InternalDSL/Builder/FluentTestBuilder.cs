@@ -171,14 +171,14 @@ namespace InternalDSL.Builder
     {
         /// <summary>
         /// Combine the previous comparison with another one using the boolean
-        /// AND operator.
+        /// And operator.
         /// </summary>
         /// <returns>The progressive builder</returns>
         IFluentComparisonBuilder<TInput, TOutput> And();
 
         /// <summary>
         /// Combine the previous comparison with another one using the boolean
-        /// OR operator.
+        /// Or operator.
         /// </summary>
         /// <returns>The progressive builder</returns>
         IFluentComparisonBuilder<TInput, TOutput> Or();
@@ -330,31 +330,31 @@ namespace InternalDSL.Builder
                 var newComparison = new BlockComparison(currentComparison, comparison, op);
                 _ongoingComparisons.Push(newComparison);
             }
-
+            
             return this;
         }
 
         public IFluentComparisonCombinationBuilder<TInput, TOutput> Equals(TOutput literal) =>
-            AppendComparison(new LiteralEqualityComparison<TInput, TOutput>(literal));
+            AppendComparison(new LiteralEqualityComparison<TInput>(literal));
 
         public IFluentComparisonCombinationBuilder<TInput, TOutput> Equals(Func<TInput, TOutput> function) =>
-            AppendComparison(new FunctionEqualityComparison<TInput, TOutput>(function));
+            AppendComparison(new FunctionEqualityComparison<TInput>(function));
 
         public IFluentComparisonCombinationBuilder<TInput, TOutput> IsNotEqual(TOutput literal) =>
-            AppendComparison(new LiteralEqualityComparison<TInput, TOutput>(literal, false));
+            AppendComparison(new LiteralEqualityComparison<TInput>(literal, false));
 
         public IFluentComparisonCombinationBuilder<TInput, TOutput> IsNotEqual(Func<TInput, TOutput> function) =>
-            AppendComparison(new FunctionEqualityComparison<TInput, TOutput>(function, false));
+            AppendComparison(new FunctionEqualityComparison<TInput>(function, false));
 
         public IFluentComparisonBuilder<TInput, TOutput> And()
         {
-            _ongoingOperators.Push(BooleanOperator.AND);
+            _ongoingOperators.Push(BooleanOperator.And);
             return this;
         }
 
         public IFluentComparisonBuilder<TInput, TOutput> Or()
         {
-            _ongoingOperators.Push(BooleanOperator.OR);
+            _ongoingOperators.Push(BooleanOperator.Or);
             return this;
         }
 
@@ -437,22 +437,22 @@ namespace InternalDSL.Builder
 
         public IComparison Equals(TOutput literal)
         {
-            return new LiteralEqualityComparison<TInput, TOutput>(literal);
+            return new LiteralEqualityComparison<TInput>(literal);
         }
 
         public IComparison Equals(Func<TInput, TOutput> function)
         {
-            return new FunctionEqualityComparison<TInput, TOutput>(function);
+            return new FunctionEqualityComparison<TInput>(function);
         }
 
         public IComparison IsNotEqual(TOutput literal)
         {
-            return new LiteralEqualityComparison<TInput, TOutput>(literal, false);
+            return new LiteralEqualityComparison<TInput>(literal, false);
         }
 
         public IComparison IsNotEqual(Func<TInput, TOutput> function)
         {
-            return new FunctionEqualityComparison<TInput, TOutput>(function, false);
+            return new FunctionEqualityComparison<TInput>(function, false);
         }
 
         public IComparison And(
@@ -462,7 +462,7 @@ namespace InternalDSL.Builder
             var leftComparison = left(this);
             var rightComparison = right(this);
 
-            return new BlockComparison(leftComparison, rightComparison, BooleanOperator.AND);
+            return new BlockComparison(leftComparison, rightComparison, BooleanOperator.And);
         }
 
         public IComparison Or(
@@ -472,7 +472,7 @@ namespace InternalDSL.Builder
             var leftComparison = left(this);
             var rightComparison = right(this);
 
-            return new BlockComparison(leftComparison, rightComparison, BooleanOperator.OR);
+            return new BlockComparison(leftComparison, rightComparison, BooleanOperator.Or);
         }
     }
 
@@ -495,7 +495,7 @@ namespace InternalDSL.Builder
             this IFluentComparisonBuilder<TInput, TOutput> self, TOutput literal)
             where TOutput : IComparable<TOutput>
         {
-            return self.AppendComparison(new LiteralComparison<TInput, TOutput>(literal, EqualityOperator.GreaterThan));
+            return self.AppendComparison(new LiteralComparison<TInput>(literal, EqualityOperator.GreaterThan));
         }
 
         /// <summary>
@@ -508,10 +508,10 @@ namespace InternalDSL.Builder
         /// <param name="function">The function whose output to compare against</param>
         /// <returns>The progressive builder</returns>
         public static IFluentComparisonCombinationBuilder<TInput, TOutput> IsGreaterThan<TInput, TOutput>(
-            this IFluentComparisonBuilder<TInput, TOutput> self, Func<TInput, TOutput> function)
+            this IFluentComparisonBuilder<TInput, TOutput> self, Func<TInput, dynamic> function)
             where TOutput : IComparable<TOutput>
         {
-            return self.AppendComparison(new FunctionComparison<TInput, TOutput>(function, EqualityOperator.GreaterThan));
+            return self.AppendComparison(new FunctionComparison<TInput>(function, EqualityOperator.GreaterThan));
         }
 
         /// <summary>
@@ -527,7 +527,7 @@ namespace InternalDSL.Builder
             this IFluentComparisonBuilder<TInput, TOutput> self, TOutput literal)
             where TOutput : IComparable<TOutput>
         {
-            return self.AppendComparison(new LiteralComparison<TInput, TOutput>(literal, EqualityOperator.LessThan));
+            return self.AppendComparison(new LiteralComparison<TInput>(literal, EqualityOperator.LessThan));
         }
 
         /// <summary>
@@ -540,10 +540,10 @@ namespace InternalDSL.Builder
         /// <param name="function">The function whose output to compare against</param>
         /// <returns>The progressive builder</returns>
         public static IFluentComparisonCombinationBuilder<TInput, TOutput> IsLessThan<TInput, TOutput>(
-            this IFluentComparisonBuilder<TInput, TOutput> self, Func<TInput, TOutput> function)
+            this IFluentComparisonBuilder<TInput, TOutput> self, Func<TInput, dynamic> function)
             where TOutput : IComparable<TOutput>
         {
-            return self.AppendComparison(new FunctionComparison<TInput, TOutput>(function, EqualityOperator.LessThan));
+            return self.AppendComparison(new FunctionComparison<TInput>(function, EqualityOperator.LessThan));
         }
     }
 }

@@ -44,7 +44,8 @@ namespace InternalDSL.Builder
     {
         public T Value { get; }
 
-        protected Wrapper(T value) => Value = value;
+        protected Wrapper(T value) =>
+            Value = value;
 
         public static bool operator ==(Wrapper<T> a, Wrapper<T> b)
         {
@@ -64,6 +65,9 @@ namespace InternalDSL.Builder
             Value.GetHashCode();
 
         public abstract int CompareTo(Wrapper<T> other);
+
+        public override string ToString() =>
+            $"{Value}";
     }
 
     public class Byte : Wrapper<byte>
