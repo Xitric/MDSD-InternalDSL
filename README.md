@@ -41,7 +41,7 @@ The DSL has been designed using a combination of design patterns for fluent inte
 
 For the generators I have opted for nested functions. This allows for me to quickly compose generators together without using any sort of context variables. Instead, I make use of statically imported functions such as `Pair()` and `List()` that simply take primitive generators as inputs and return new generators.
 
-```
+```csharp
 var crazyGenerator = List(
     Pair(
         Triplet(Str, PosInteger, Character), 
@@ -62,7 +62,7 @@ Similarly, for composing boolean expressions it is not possible to call two comp
 ## Alternatives
 The implementation of the method chaining builder for boolean expressions makes use of two stacks to keep track of how the expressions are composed. This is further supported by a number of context variables. To experiment with a simpler implementation, I opted for nested lambdas. This implementation removed the need for context variables entirely, at the expense of a noisier syntax. The lambda-based DSL is available by using `ThenLambda()` in place of `Then()`:
 
-```
+```csharp
 .Property("Returns the sum of its input")
     .Given(i => i.Item1 > 0)
     .Given(i => i.Item2 > 0)
