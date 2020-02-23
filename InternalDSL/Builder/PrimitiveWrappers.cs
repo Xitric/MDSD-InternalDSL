@@ -97,7 +97,8 @@ namespace InternalDSL.Builder
 
         public override int CompareTo(object other)
         {
-            return Value.CompareTo(other);
+            var by = other as Byte;
+            return by != null ? Value.CompareTo(by.Value) : Value.CompareTo((byte)other);
         }
     }
 
@@ -116,7 +117,8 @@ namespace InternalDSL.Builder
 
         public override int CompareTo(object other)
         {
-            return Value.CompareTo(other);
+            var integer = other as Integer;
+            return integer != null ? Value.CompareTo(integer.Value) : Value.CompareTo((int) other);
         }
     }
 
@@ -135,7 +137,8 @@ namespace InternalDSL.Builder
 
         public override int CompareTo(object other)
         {
-            return Value.CompareTo(other);
+            var lo = other as Long;
+            return lo != null ? Value.CompareTo(lo.Value) : Value.CompareTo((long)other);
         }
     }
 
@@ -154,7 +157,8 @@ namespace InternalDSL.Builder
 
         public override int CompareTo(object other)
         {
-            return Value.CompareTo(other);
+            var fl = other as Float;
+            return fl != null ? Value.CompareTo(fl.Value) : Value.CompareTo((float)other);
         }
     }
 
@@ -173,7 +177,8 @@ namespace InternalDSL.Builder
 
         public override int CompareTo(object other)
         {
-            return Value.CompareTo(other);
+            var doub = other as Double;
+            return doub != null ? Value.CompareTo(doub.Value) : Value.CompareTo((double)other);
         }
     }
 
@@ -192,7 +197,8 @@ namespace InternalDSL.Builder
 
         public override int CompareTo(object other)
         {
-            return Value.CompareTo(other);
+            var character = other as Character;
+            return character != null ? Value.CompareTo(character.Value) : Value.CompareTo((char)other);
         }
     }
 
@@ -211,7 +217,8 @@ namespace InternalDSL.Builder
 
         public override int CompareTo(object other)
         {
-            return Value.CompareTo(other);
+            var boolean = other as Boolean;
+            return boolean != null ? Value.CompareTo(boolean.Value) : Value.CompareTo((bool)other);
         }
     }
 }

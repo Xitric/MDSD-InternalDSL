@@ -214,7 +214,7 @@ namespace InternalDSL.Builder
                 throw new InvalidOperationException("Unfinished comparison for new property");
             }
 
-            var property = new Property<TInput, TOutput>(Description, Function, _ongoingComparisons.Pop());
+            var property = new Property<TInput, TOutput>(Description, Preconditions, Function, _ongoingComparisons.Pop());
             SemanticModel.AddProperty(property);
         }
     }

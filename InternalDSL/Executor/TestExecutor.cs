@@ -1,4 +1,6 @@
-﻿using InternalDSL.SemanticModel;
+﻿using System;
+using System.Linq;
+using InternalDSL.SemanticModel;
 
 namespace InternalDSL.Executor
 {
@@ -38,9 +40,19 @@ namespace InternalDSL.Executor
                 var sample = Test.Generator.Next();
                 foreach (var property in Test.Properties)
                 {
+                    while (!SatisfiesPreconditions(sample, property))
+                    {
+                        sample = Test.Generator.Next();
+                    }
+
                     Assert(property, sample);
                 }
             }
+        }
+
+        private bool SatisfiesPreconditions<TOutput>(TInput sample, IProperty<TInput, TOutput> property)
+        {
+            return property.Preconditions.All(precondition => precondition(sample));
         }
 
         private void Assert<TOutput>(IProperty<TInput, TOutput> property, TInput sample)

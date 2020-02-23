@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using InternalDSL.Builder;
 using InternalDSL.Executor;
 using static InternalDSL.Builder.Generators;
@@ -25,9 +26,9 @@ namespace InternalDSL
                 Test("Test of Union method")
                     .Generator(Triplet(Array(Str), Array(Str), Array(Str)))
                         .Property("Union keeps correct length")
-                        .Given(i => i.Item1 != null)
-                        .Given(i => i.Item2 != null)
-                        .Given(i => i.Item3 != null)
+                        .Given(i => i.Item1.Any())
+                        .Given(i => i.Item2.Any())
+                        .Given(i => i.Item3.Any())
                         .Then(i => i.Item1.Concat(i.Item2).Concat(i.Item3).Count().I())
                         .Equals(i => i.Item1.Length + i.Item2.Length + i.Item3.Length)
                         .And()
@@ -37,8 +38,8 @@ namespace InternalDSL
                         .And()
                         .IsGreaterThan(i => i.Item3.Length)
                     .Property("Last element is correct")
-                        .Given(i => i.Item2.Length > 0)
-                        .Then(i => i.Item1.Union(i.Item2).Last())
+                        .Given(i => i.Item2.Any())
+                        .Then(i => i.Item1.Concat(i.Item2).Last())
                         .IsNotEqual((string) null)
                         .And()
                         .Equals(i => i.Item2.Last())

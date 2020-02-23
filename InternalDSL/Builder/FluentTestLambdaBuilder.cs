@@ -11,7 +11,7 @@ namespace InternalDSL.Builder
         public IFluentTestBuilder<TInput> Satisfies(Func<IFluentComparisonLambdaBuilder<TInput, TOutput>, IComparison> comparisonBuilder)
         {
             var comparison = comparisonBuilder(this);
-            var property = new Property<TInput, TOutput>(Description, Function, comparison);
+            var property = new Property<TInput, TOutput>(Description, Preconditions, Function, comparison);
             SemanticModel.AddProperty(property);
             return this;
         }

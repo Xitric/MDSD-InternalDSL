@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace InternalDSL.SemanticModel
 {
@@ -17,6 +18,12 @@ namespace InternalDSL.SemanticModel
         string Description { get; }
 
         /// <summary>
+        /// A set of conditions that must be met for an input sample to be
+        /// valid for this property.
+        /// </summary>
+        IEnumerable<Func<TInput, bool>> Preconditions { get; }
+
+        /// <summary>
         /// The function under test.
         /// </summary>
         Func<TInput, TOutput> Function { get; }
@@ -31,12 +38,14 @@ namespace InternalDSL.SemanticModel
     public class Property<TInput, TOutput> : IProperty<TInput, TOutput>
     {
         public string Description { get; }
+        public IEnumerable<Func<TInput, bool>> Preconditions { get; }
         public Func<TInput, TOutput> Function { get; }
         public IComparison Comparison { get; }
 
-        public Property(string description, Func<TInput, TOutput> function, IComparison comparison)
+        public Property(string description, IEnumerable<Func<TInput, bool>> preconditions, Func<TInput, TOutput> function, IComparison comparison)
         {
             Description = description;
+            Preconditions = preconditions ?? new List<Func<TInput, bool>>();
             Function = function;
             Comparison = comparison;
         }
