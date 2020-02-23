@@ -18,7 +18,7 @@ namespace InternalDSL.Builder
         /// <returns>The progressive builder</returns>
         public static IFluentComparisonCombinationBuilder<TInput, TOutput> IsGreaterThan<TInput, TOutput>(
             this IFluentComparisonBuilder<TInput, TOutput> self, TOutput literal)
-            where TOutput : IComparable<TOutput>
+            where TOutput : IComparable
         {
             return self.AppendComparison(new LiteralComparison<TInput>(literal, EqualityOperator.GreaterThan));
         }
@@ -32,7 +32,7 @@ namespace InternalDSL.Builder
         /// <returns>The progressive builder</returns>
         public static IFluentComparisonCombinationBuilder<TInput, TOutput> IsGreaterThan<TInput, TOutput>(
             this IFluentComparisonBuilder<TInput, TOutput> self, Func<TInput, dynamic> function)
-            where TOutput : IComparable<TOutput>
+            where TOutput : IComparable
         {
             return self.AppendComparison(new FunctionComparison<TInput>(function, EqualityOperator.GreaterThan));
         }
@@ -46,7 +46,7 @@ namespace InternalDSL.Builder
         /// <returns>The progressive builder</returns>
         public static IFluentComparisonCombinationBuilder<TInput, TOutput> IsLessThan<TInput, TOutput>(
             this IFluentComparisonBuilder<TInput, TOutput> self, TOutput literal)
-            where TOutput : IComparable<TOutput>
+            where TOutput : IComparable
         {
             return self.AppendComparison(new LiteralComparison<TInput>(literal, EqualityOperator.LessThan));
         }
@@ -60,7 +60,7 @@ namespace InternalDSL.Builder
         /// <returns>The progressive builder</returns>
         public static IFluentComparisonCombinationBuilder<TInput, TOutput> IsLessThan<TInput, TOutput>(
             this IFluentComparisonBuilder<TInput, TOutput> self, Func<TInput, dynamic> function)
-            where TOutput : IComparable<TOutput>
+            where TOutput : IComparable
         {
             return self.AppendComparison(new FunctionComparison<TInput>(function, EqualityOperator.LessThan));
         }

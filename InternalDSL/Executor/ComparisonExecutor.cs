@@ -28,10 +28,10 @@ namespace InternalDSL.Executor
                     AssertBlock(sample, functionValue, blockComparison);
                     break;
                 case FunctionComparison<TInput> functionComparison:
-                    if (!(functionValue is IComparable<TOutput>))
+                    if (!(functionValue is IComparable))
                         throw new PropertyException("Attempted to compare output values that are not of type IComparable");
 
-                    AssertFunction(sample, (IComparable<TOutput>)functionValue, functionComparison);
+                    AssertFunction(sample, (IComparable)functionValue, functionComparison);
                     break;
                 case FunctionEqualityComparison<TInput> functionEqualityComparison:
                     AssertFunctionEquality(sample, functionValue, functionEqualityComparison);
@@ -89,13 +89,15 @@ namespace InternalDSL.Executor
         /// Evaluate a boolean comparison between two function values that
         /// implement IComparable.
         /// </summary>
-        private void AssertFunction<TOutput>(TInput sample, IComparable<TOutput> functionValue,
+        private void AssertFunction(TInput sample, IComparable functionValue,
             FunctionComparison<TInput> comparison)
         {
-            var expected = (TOutput) comparison.ExpectedFunction(sample);
-            if (functionValue != null)
+            var expected = comparison.ExpectedFunction(sample);
+            if (functionValue != null) {
                 if (Math.Sign(functionValue.CompareTo(expected)) != (int) comparison.EqualityOperator)
                     throw new PropertyException($"Expected {functionValue} to relate to {expected} by operator {comparison.EqualityOperator}");
+                return;
+            }
 
             switch (comparison.EqualityOperator)
             {

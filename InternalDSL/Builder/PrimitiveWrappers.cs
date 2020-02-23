@@ -52,7 +52,7 @@ namespace InternalDSL.Builder
     /// Subtypes are expected to provide implicit conversion operators.
     /// </summary>
     /// <typeparam name="T">The type of value to wrap</typeparam>
-    public abstract class Wrapper<T> : IComparable<Wrapper<T>>
+    public abstract class Wrapper<T> : IComparable
     {
         public T Value { get; }
 
@@ -76,7 +76,7 @@ namespace InternalDSL.Builder
         public override int GetHashCode() =>
             Value.GetHashCode();
 
-        public abstract int CompareTo(Wrapper<T> other);
+        public abstract int CompareTo(object other);
 
         public override string ToString() =>
             $"{Value}";
@@ -95,7 +95,7 @@ namespace InternalDSL.Builder
             return Value == other;
         }
 
-        public override int CompareTo(Wrapper<byte> other)
+        public override int CompareTo(object other)
         {
             return Value.CompareTo(other);
         }
@@ -114,7 +114,7 @@ namespace InternalDSL.Builder
             return Value == other;
         }
 
-        public override int CompareTo(Wrapper<int> other)
+        public override int CompareTo(object other)
         {
             return Value.CompareTo(other);
         }
@@ -133,7 +133,7 @@ namespace InternalDSL.Builder
             return Value == other;
         }
 
-        public override int CompareTo(Wrapper<long> other)
+        public override int CompareTo(object other)
         {
             return Value.CompareTo(other);
         }
@@ -152,7 +152,7 @@ namespace InternalDSL.Builder
             return Value == other;
         }
 
-        public override int CompareTo(Wrapper<float> other)
+        public override int CompareTo(object other)
         {
             return Value.CompareTo(other);
         }
@@ -171,7 +171,7 @@ namespace InternalDSL.Builder
             return Value == other;
         }
 
-        public override int CompareTo(Wrapper<double> other)
+        public override int CompareTo(object other)
         {
             return Value.CompareTo(other);
         }
@@ -190,7 +190,7 @@ namespace InternalDSL.Builder
             return Value == other;
         }
 
-        public override int CompareTo(Wrapper<char> other)
+        public override int CompareTo(object other)
         {
             return Value.CompareTo(other);
         }
@@ -209,7 +209,7 @@ namespace InternalDSL.Builder
             return Value == other;
         }
 
-        public override int CompareTo(Wrapper<bool> other)
+        public override int CompareTo(object other)
         {
             return Value.CompareTo(other);
         }
