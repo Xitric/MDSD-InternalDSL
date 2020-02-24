@@ -1,7 +1,5 @@
 using System.Linq;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using InternalDSL.Builder;
-using InternalDSL.Executor;
 using static InternalDSL.Builder.Generators;
 using static InternalDSL.Builder.FluentTestBuilder;
 

@@ -167,6 +167,9 @@ namespace InternalDSL.Builder
 
         public IFluentComparisonCombinationBuilder<TInput, TOutput> EndBlock()
         {
+            if (_nestDepth == 0)
+                throw new InvalidOperationException("There is no block to close");
+
             if (_ongoingComparisons.Count > _nestDepth)
             {
                 if (_ongoingComparisons.Count != _ongoingOperators.Count + 1)
@@ -208,6 +211,9 @@ namespace InternalDSL.Builder
             {
                 throw new InvalidOperationException("Missing test function for new property");
             }
+
+            if (_nestDepth != 0)
+                throw new InvalidOperationException("Boolean expression is not properly closed");
 
             if (!_ongoingComparisons.Any())
             {
