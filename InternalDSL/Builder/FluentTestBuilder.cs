@@ -122,8 +122,11 @@ namespace InternalDSL.Builder
             }
             else
             {
+                if (_ongoingComparisons.Count != _ongoingOperators.Count)
+                    throw new InvalidOperationException("Mismatching operators and boolean comparisons");
+
                 var currentComparison = _ongoingComparisons.Pop();
-                var op = _ongoingOperators.Pop(); //TODO: Ensure correct number of operators on stack
+                var op = _ongoingOperators.Pop();
                 var newComparison = new BlockComparison(currentComparison, comparison, op);
                 _ongoingComparisons.Push(newComparison);
             }
@@ -166,10 +169,12 @@ namespace InternalDSL.Builder
         {
             if (_ongoingComparisons.Count > _nestDepth)
             {
+                if (_ongoingComparisons.Count != _ongoingOperators.Count + 1)
+                    throw new InvalidOperationException("Mismatching operators and boolean comparisons");
+
                 var right = _ongoingComparisons.Pop();
                 var left = _ongoingComparisons.Pop();
                 var op = _ongoingOperators.Pop();
-                //TODO: Something with ensuring both stacks have similar heights (operator stack 1 smaller)
 
                 var newComparison = new BlockComparison(left, right, op);
 
@@ -209,7 +214,7 @@ namespace InternalDSL.Builder
                 throw new InvalidOperationException("Missing comparison for new property");
             }
 
-            if (_ongoingComparisons.Count > 1)
+            if (_ongoingComparisons.Count > 1 || _ongoingOperators.Any())
             {
                 throw new InvalidOperationException("Unfinished comparison for new property");
             }

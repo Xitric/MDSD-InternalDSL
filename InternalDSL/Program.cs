@@ -102,6 +102,24 @@ namespace InternalDSL
             //To be executed in a Unit test project
             //var executor = TestExecutor.Create(sumTestLambdas);
             //executor.Assert();
+
+            var blockTest =
+                Test("A lot of blocks")
+                    .Generator(PosInteger)
+                    .Property("A complex property")
+                        .Then(i => i.I())
+                        .BeginBlock()
+                            .BeginBlock()
+                                .IsGreaterThan(0)
+                            .EndBlock()
+                        .EndBlock()
+                        .Or()
+                        .BeginBlock()
+                            .IsGreaterThan(-1)
+                            .And()
+                            .IsNotEqual(i => i - 1)
+                        .EndBlock()
+                    .Build();
         }
 
         private static int Add(int a, int b)
