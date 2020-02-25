@@ -23,7 +23,7 @@ namespace InternalDSL
             var simpleConcatTest =
                 Test("Test of Union method")
                     .Generator(Triplet(Array(Str), Array(Str), Array(Str)))
-                        .Property("Union keeps correct length")
+                    .Property("Union keeps correct length")
                         .Given(i => i.Item1.Any())
                         .Given(i => i.Item2.Any())
                         .Given(i => i.Item3.Any())
@@ -97,10 +97,6 @@ namespace InternalDSL
                             ))
                     .Build();
 
-            //To be executed in a Unit test project
-            //var executor = TestExecutor.Create(sumTestLambdas);
-            //executor.Assert();
-
             var blockTest =
                 Test("A lot of blocks")
                     .Generator(PosInteger)
@@ -118,6 +114,10 @@ namespace InternalDSL
                             .IsNotEqual(i => i - 1)
                         .EndBlock()
                     .Build();
+
+            //To be executed in a Unit test project
+            //var executor = TestExecutor.Create(sumTestLambdas);
+            //executor.Assert();
         }
 
         private static int Add(int a, int b)
